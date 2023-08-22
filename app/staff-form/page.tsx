@@ -51,7 +51,6 @@ const schema = object({
 type FormData = Input<typeof schema>;
 
 export default function FormStaff() {
-  const origin = "http://localhost:3000";
   const [formLink, setFormLink] = React.useState("");
   const form = useForm<FormData>({
     resolver: valibotResolver(schema),
@@ -63,6 +62,22 @@ export default function FormStaff() {
       birthDate: null,
     },
   });
+  // Watch for changes on the entire form
+  const formData = form.watch();
+
+  React.useEffect(() => {
+    // check if the form is not empty.
+    if (form.formState.isDirty) {
+      window?.top?.postMessage(
+        {
+          type: "client-form-data",
+          payload: formData,
+        },
+        "*"
+      );
+    }
+  }, [form.formState.isDirty, formData]);
+
   const {
     handleSubmit,
     formState: { errors },
@@ -221,10 +236,10 @@ export default function FormStaff() {
           />
 
           <div className="flex justify-between items-center">
-            <Button type="submit">Submit</Button>
-            <Button type="button" onClick={handleFormSharing}>
+            {/* <Button type="submit">Submit</Button> */}
+            {/* <Button type="button" onClick={handleFormSharing}>
               Share Form
-            </Button>
+            </Button> */}
           </div>
           {formLink && (
             <div
