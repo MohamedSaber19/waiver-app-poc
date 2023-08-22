@@ -44,7 +44,9 @@ const schema = object({
     minLength(1, "Email is required"),
     email("The email address is not valid"),
   ]),
-  mobileNumber: string("Mobile number is required"),
+  mobileNumber: string("Mobile number is required", [
+    minLength(1, "Mobile number is required"),
+  ]),
   birthDate: nullish(date("Birth date is required")),
 });
 
@@ -61,6 +63,7 @@ export default function FormStaff() {
       mobileNumber: "",
       birthDate: null,
     },
+    mode: "onTouched",
   });
   // Watch for changes on the entire form
   const formData = form.watch();
@@ -72,11 +75,12 @@ export default function FormStaff() {
         {
           type: "client-form-data",
           payload: formData,
+          isValid: form.formState.isValid,
         },
         "*"
       );
     }
-  }, [form.formState.isDirty, formData]);
+  }, [form.formState.isDirty, form.formState.isValid, formData]);
 
   const {
     handleSubmit,
@@ -85,7 +89,7 @@ export default function FormStaff() {
   const onSubmit = (data: FormData) => {
     window?.top?.postMessage(
       {
-        type: "client-form-submit",
+        type: "client-form-data",
         payload: data,
       },
       "*"
@@ -110,9 +114,13 @@ export default function FormStaff() {
     );
   };
 
+  const handleTriggerValidation = () => {
+    form.trigger();
+  };
+
   return (
     <main className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold text-center">Staff Form</h1>
+      <h1 className="text-3xl font-bold text-center">Participant Form</h1>
       <Form {...form}>
         <form
           className="flex flex-col gap-4 max-w-lg mx-auto"
@@ -123,7 +131,7 @@ export default function FormStaff() {
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name</FormLabel>
+                <FormLabel>* First Name</FormLabel>
                 <FormControl>
                   <InputField placeholder="Enter your first name" {...field} />
                 </FormControl>
@@ -140,7 +148,7 @@ export default function FormStaff() {
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last Name</FormLabel>
+                <FormLabel>* Last Name</FormLabel>
                 <FormControl>
                   <InputField placeholder="Enter your last name" {...field} />
                 </FormControl>
@@ -157,7 +165,7 @@ export default function FormStaff() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>* Email</FormLabel>
                 <FormControl>
                   <InputField placeholder="Enter your email" {...field} />
                 </FormControl>
@@ -174,7 +182,7 @@ export default function FormStaff() {
             name="mobileNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mobile Number</FormLabel>
+                <FormLabel>* Mobile Number</FormLabel>
                 <FormControl>
                   <InputField
                     type="tel"
@@ -239,6 +247,13 @@ export default function FormStaff() {
             {/* <Button type="submit">Submit</Button> */}
             {/* <Button type="button" onClick={handleFormSharing}>
               Share Form
+            </Button> */}
+            {/* <Button
+              type="button"
+              onClick={handleTriggerValidation}
+              className="w-1/2"
+            >
+              Trigger
             </Button> */}
           </div>
           {formLink && (
